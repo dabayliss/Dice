@@ -1,32 +1,51 @@
 class BaseDice(val Atk: Int,val Succ: Int, val Crit:Int) {
-    class Result(Fail: Int, Succ: Int,Crit: Int, Prob: Number);
-    fun Roll(): List<Result> {
-        val res = mutableListOf<Result>()
-        for ( ifail in 0 .. Atk) {
-            for ( isucc in 0 .. Atk-ifail) {
-                val resline = Result(ifail,isucc,Atk-ifail-isucc,0)
-                res.add(resline)
-            }
+    class Result(val Fail: Byte, val Succ: Byte,val Crit: Byte, val Prob: Number) {
+        fun Key() : Int {
+            return Fail.toInt() shl 16 + Succ.toInt() shl 8 + Crit
         }
-        return res;
     }
-    class RollCombination(val Nums: IntArray,val Times: Number)
+    fun Roll(): List<Result> {
+        val lpos = Combinations()
+        return lpos
+            .map { Grade(it) }
+            .groupBy { it.Key() }
+            .map { Result(it.value[0].Fail,it.value[0].Succ,it.value[0].Crit,it.value.stream().mapToInt({ it.Prob.toInt() }).sum()) }
+    }
+
+    class RollCombination(val Nums: ByteArray,val Times: Number)
 
     fun Combinations(): List<RollCombination> {
-        var res = mutableListOf<RollCombination>()
-        findCombinations(res,0,IntArray(Atk),1,0)
+        val res = mutableListOf<RollCombination>()
+        findCombinations(res,0,ByteArray(Atk),1,0)
         return res
     }
 
-    private fun findCombinations(res: MutableList<BaseDice.RollCombination>, possToFill: Int, soFar: IntArray, mult: Int, nsf: Int) {
+    fun Grade(combo: RollCombination) : Result {
+        var fail = 0
+        var succ = 0
+        var crit = 0
+        for ( i in 0..combo.Nums.size-1 ) {
+            val tdice = combo.Nums[i].toInt()
+            if ( tdice >= Succ ) {
+                if ( tdice < Crit )
+                    succ++
+                else
+                    crit++
+            } else
+                fail++
+        }
+        return Result(fail.toByte(),succ.toByte(),crit.toByte(),combo.Times)
+    }
+
+    private fun findCombinations(res: MutableList<RollCombination>, possToFill: Int, soFar: ByteArray, mult: Int, nsf: Int) {
         if ( possToFill == soFar.size ) {
             res.add(RollCombination(soFar.clone(),mult))
         } else {
-            var top = if ( possToFill == 0 ) 6 else soFar[possToFill-1]
+            val top = if ( possToFill == 0 ) 6 else soFar[possToFill-1]
             val omult = mult * (Atk-possToFill)
             for ( i in 1 .. top ) {
-                soFar[possToFill] = i
-                if ( possToFill > 0 && i == soFar[possToFill-1])
+                soFar[possToFill] = i.toByte()
+                if ( possToFill > 0 && i.toByte() == soFar[possToFill-1])
                     findCombinations(res,possToFill+1,soFar,omult/(nsf+1),nsf+1)
                 else
                     findCombinations(res,possToFill+1,soFar,omult,1)
