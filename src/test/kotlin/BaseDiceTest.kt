@@ -11,6 +11,20 @@ internal class BaseDiceTest {
         val res = bd.Roll()
         assertNotNull(res)
         assertEquals(3,res.size)
+        assertEquals(0x010000,res[0].Key())
+        assertEquals(1,res[0].Prob)
+        assertEquals(0x0100,res[1].Key())
+        assertEquals(2,res[1].Prob)
+        assertEquals(0x01,res[2].Key())
+        assertEquals(3,res[2].Prob)
+    }
+
+    @Test
+    fun grade() {
+        val bd = BaseDice(1, 4, 6)
+        val rc = BaseDice.RollCombination(byteArrayOf(1),1)
+        val gr = bd.Grade(rc)
+        assertEquals(0x1,gr.Key())
     }
 
     @Test

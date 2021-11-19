@@ -1,7 +1,7 @@
 class BaseDice(val Atk: Int,val Succ: Int, val Crit:Int) {
     class Result(val Fail: Byte, val Succ: Byte,val Crit: Byte, val Prob: Number) {
         fun Key() : Int {
-            return Fail.toInt() shl 16 + Succ.toInt() shl 8 + Crit
+            return (Crit.toInt() shl 16) + (Succ.toInt() shl 8) + Fail.toInt()
         }
     }
     fun Roll(): List<Result> {
@@ -10,6 +10,7 @@ class BaseDice(val Atk: Int,val Succ: Int, val Crit:Int) {
             .map { Grade(it) }
             .groupBy { it.Key() }
             .map { Result(it.value[0].Fail,it.value[0].Succ,it.value[0].Crit,it.value.stream().mapToInt({ it.Prob.toInt() }).sum()) }
+            .sortedWith(compareBy<Result>({it.Crit},{it.Succ}).reversed())
     }
 
     class RollCombination(val Nums: ByteArray,val Times: Number)
