@@ -1,7 +1,13 @@
-class BaseDice(val Atk: Int,val Succ: Int, val Crit:Int) {
-    class Result(val Fail: Byte, val Succ: Byte,val Crit: Byte, val Prob: Number) {
+import kotlin.math.pow
+
+class BaseDice(val Atk: Int, val Succ: Int, val Crit:Int) {
+    inner class Result(val Fail: Byte, val Succ: Byte,val Crit: Byte, val Prob: Number) {
         fun Key() : Int {
             return (Crit.toInt() shl 16) + (Succ.toInt() shl 8) + Fail.toInt()
+        }
+        fun Probability() : Double {
+            val n = 6.0
+            return Prob.toDouble() / n.pow(Atk)
         }
     }
     fun Roll(): List<Result> {

@@ -3,12 +3,13 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.Assertions.*
 import java.util.function.ToIntFunction
 
+
 internal class BaseDiceTest {
 
     @Test
     fun roll() {
-        val bd = BaseDice(1, 4, 6)
-        val res = bd.Roll()
+        var bd = BaseDice(1, 4, 6)
+        var res = bd.Roll()
         assertNotNull(res)
         assertEquals(3,res.size)
         assertEquals(0x010000,res[0].Key())
@@ -17,6 +18,26 @@ internal class BaseDiceTest {
         assertEquals(2,res[1].Prob)
         assertEquals(0x01,res[2].Key())
         assertEquals(3,res[2].Prob)
+        bd = BaseDice(2,4,6)
+        res = bd.Roll()
+        assertEquals(6,res.size)
+        assertEquals(0x020000,res[0].Key())
+        assertEquals(1.0/36.0,res[0].Probability())
+        assertEquals(0x010100,res[1].Key())
+        assertEquals(4,res[1].Prob)
+        assertEquals(1.0/9.0,res[1].Probability())
+        assertEquals(0x010001,res[2].Key())
+        assertEquals(1.5/9.0,res[2].Probability())
+        assertEquals(0x000200,res[3].Key())
+        assertEquals(1.0/9.0,res[3].Probability())
+        assertEquals(0x000101,res[4].Key())
+        assertEquals(3/9.0,res[4].Probability())
+        assertEquals(0x000002,res[5].Key())
+        assertEquals(0.25,res[5].Probability())
+        assertEquals(1.0,res.stream().mapToDouble() { it.Probability() }.sum())
+        bd = BaseDice(2,4,6)
+        res = bd.Roll()
+        assertEquals(1.0,res.stream().mapToDouble() { it.Probability() }.sum())
     }
 
     @Test
